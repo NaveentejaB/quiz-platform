@@ -53,22 +53,22 @@ const Quiz = () => {
 
     const saveQuizResult = async () => {
         try {
-          const db = await initDB();
-          const transaction = db.transaction(['quizHistory'], 'readwrite');
-          const store = transaction.objectStore('quizHistory');
-    
-          const quizResult = {
-            id: `quiz-${Date.now()}`,
-            date: new Date().toISOString().split('T')[0],
-            duration: formatDuration(totalTime),
-            score: Math.round((score / quizData.length) * 100),
-            totalQuestions: quizData.length,
-            correctAnswers: score+1,
-            category: "Mixed", 
-            details: calculateCategoryStats()
-          };
-    
-          await store.add(quizResult);
+            const db = await initDB();
+            const transaction = db.transaction(['quizHistory'], 'readwrite');
+            const store = transaction.objectStore('quizHistory');
+            const anlaysisData = calculateCategoryStats();
+            const totScore = anlaysisData.reduce((acc,curr) => acc + curr.correct,0);
+            const quizResult = {
+                id: `quiz-${Date.now()}`,
+                date: new Date().toISOString().split('T')[0],
+                duration: formatDuration(totalTime),
+                score: Math.round((score / quizData.length) * 100),
+                totalQuestions: quizData.length,
+                correctAnswers: totScore,
+                category: "Mixed", 
+                details: anlaysisData
+            };
+            await store.add(quizResult);
         } catch (error) {
           console.error('Error saving quiz result:', error);
         }
